@@ -53,7 +53,7 @@ pred_method = 'RF regr'
 
 
 # these hyper params are just a guess
-regr = RandomForestRegressor(n_estimators=1000, max_depth=20, random_state=42)
+regr = RandomForestRegressor(n_estimators=1000, max_depth=20, random_state=42,verbose=1)
 
 regr.fit(X_train, y_train)
 

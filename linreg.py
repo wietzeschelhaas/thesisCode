@@ -71,38 +71,35 @@ data = pandas.DataFrame(x_scaled)
 
 x_train, x_test,y_train,y_test = train_test_split(data,Y,test_size = 0.2, random_state = 4)
 
-y_test = y_test.to_numpy()
-y_train = y_train.to_numpy()
+
 
 # define base model
 #mean squared error is optimized. 
 #no activation funciton is used on the output since this is regression.
  
-#def baseline_model():
-#	# create model
-#	model = Sequential()
-#	model.add(Dense(47, input_dim=47, kernel_initializer='normal', activation='relu'))
-#	model.add(Dense(1, kernel_initializer='normal'))
-#	# Compile model
-#	model.compile(loss='mean_squared_error', optimizer='adam')
-#	return model
-## evaluate model
-#estimator = KerasRegressor(build_fn=baseline_model, epochs=1, batch_size=5, verbose=0)
-#kfold = KFold(n_splits=10)
+def baseline_model():
+	# create model
+    model = Sequential()
+    model.add(Dense(48, input_dim=48, kernel_initializer='normal', activation='relu'))
+    model.add(Dropout(0.2))
+    model.add(Dense(1, kernel_initializer='normal'))
+    # Compile model
+    model.compile(loss='mean_squared_error', optimizer='adam')
+    return model
+
+    
+
+estimator = KerasRegressor(build_fn=baseline_model, epochs=1, batch_size=5, verbose=1)
+
+estimator.fit(x_train, y_train)
+
+predicTest = estimator.predict(x_test)
+predicTrain = estimator.predict(x_train)
+
+#kfold = KFold(n_splits=5)
 #results = cross_val_score(estimator, data, Y, cv=kfold)
 #print("Baseline: %.2f (%.2f) MSE" % (results.mean(), results.std()))
 
-#
-model = Sequential()
-model.add(Dense(48, input_dim=48, kernel_initializer='normal', activation='relu'))
-model.add(Dropout(0.2))
-model.add(Dense(1, kernel_initializer='normal'))
-# Compile model
-model.compile(loss='mean_absolute_error', optimizer='adam')
-
-
-model.fit(x_train, y_train, validation_data=(x_test, y_test),
-	epochs=1, batch_size=8)
 
 
 
@@ -110,12 +107,13 @@ def NMAE(y,yHat):
     return np.sum(np.absolute(y - yHat)) / np.sum(y)
 
 
-predicTest = model.predict(x_test)
-predicTrain = model.predict(x_train)
-
-
 print(NMAE(y_test,predicTest))
 print(NMAE(y_train,predicTrain))
+
+
+
+#print(NMAE(y_test,predicTest))
+#print(NMAE(y_train,predicTrain))
 
 
 

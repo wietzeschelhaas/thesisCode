@@ -121,7 +121,7 @@ main_df['target'] = list(map(classify, main_df[f"{RATIO_TO_PREDICT}_close"],main
 
 main_df = main_df[:int(len(main_df)*0.05):]
 
-#probaably already sorted, but its important that the validation data is in sequence so sort anyway.
+#probably already sorted, but its important that the validation data is in sequence so sort anyway.
 times = sorted(main_df.index.values)
 last_5pct = times[-int(0.05*len(times))]
 

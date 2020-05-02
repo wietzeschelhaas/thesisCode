@@ -6,6 +6,7 @@ Created on Wed Apr 22 09:30:37 2020
 """
 
 import pandas as pd
+from matplotlib import pyplot
 from sklearn import preprocessing
 from collections import deque
 import random
@@ -18,7 +19,7 @@ from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint
 FUTURE_PERIOD_PREDICT = 5
 
 
-data = pandas.read_csv(r"C:\Users\wietz\Desktop\IoT\ExpID_1_df_125_15min_originalRTT.csv") 
+data = pd.read_csv(r"C:\Users\wietz\Desktop\IoT\ExpID_1_df_125_15min_originalRTT.csv") 
 
 #Preporcess
 
@@ -49,11 +50,11 @@ def preprocessDf(df):
     y.dropna(inplace=True)
 
 
-#    #normalize data
-#    for col in df.columns:
-#        #normalzie everything except target?
-#        if col != "target":
-#            #df[col] = preprocessing.scale(df[col].values)
+    #normalize data
+    for col in df.columns:
+        #normalzie everything except target?
+        if col != "target":
+            df[col] = preprocessing.scale(df[col].values)
             
     # in case scale generates na
     #df.dropna(inplace=True)
@@ -108,7 +109,7 @@ model.add(Dense(1))
 model.compile(loss='mae', optimizer='adam')
 
 
-history = model.fit(x_train, y_train, epochs=50, batch_size=72, validation_data=(x_test, y_test), verbose=1, shuffle=False)
+history = model.fit(x_train, y_train, epochs=5, batch_size=40, validation_data=(x_test, y_test), verbose=1, shuffle=False)
 
 
 # plot history

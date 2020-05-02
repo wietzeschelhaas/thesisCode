@@ -10,6 +10,12 @@ from sklearn import preprocessing
 from collections import deque
 import random
 import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense,Dropout,LSTM,BatchNormalization
+from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint
+
+
 
 df = pd.read_csv(r"C:\Users\wietz\Desktop\IoT\crypto_data\BTC-USD.csv",names=["time","low","high","open","close","volume"])
 
@@ -20,6 +26,9 @@ SEQ_LEN = 60
 #to predcit the coming 3 minutes
 FUTURE_PERIOD_PREDICT = 3
 RATIO_TO_PREDICT = "LTC-USD"
+EPOCHS = 10
+BATCH_SIZE = 64
+NAME = f"{SEQ_LEN}-SEQ-{RATIO_TO_PREDICT}"
 
 def classify(current, future):
     if float(future) > float(current):
@@ -110,6 +119,7 @@ main_df['future'] = main_df[f"{RATIO_TO_PREDICT}_close"].shift(-FUTURE_PERIOD_PR
 
 main_df['target'] = list(map(classify, main_df[f"{RATIO_TO_PREDICT}_close"],main_df["future"]))
 
+main_df = main_df[:int(len(main_df)*0.05):]
 
 #probaably already sorted, but its important that the validation data is in sequence so sort anyway.
 times = sorted(main_df.index.values)
@@ -121,3 +131,43 @@ main_df = main_df[(main_df.index < last_5pct)]
 
 train_x, train_y = preprocessDf(main_df)
 valid_x, valid_y = preprocessDf(validation_main_df)
+
+
+
+model = Sequential()
+model.add(LSTM(128,input_shape=(train_x.shape[1:]),activation="tanh",return_sequences=True))
+model.add(Dropout(0.2))
+model.add(BatchNormalization())
+
+model.add(LSTM(128,input_shape=(train_x.shape[1:]),activation="tanh",return_sequences=True))
+model.add(Dropout(0.1))
+model.add(BatchNormalization())
+
+model.add(LSTM(128,activation="relu",input_shape=(train_x.shape[1:])))
+model.add(Dropout(0.2))
+model.add(BatchNormalization())
+
+model.add(Dense(32,activation="relu"))
+model.add(Dropout(0.2))
+
+
+model.add(Dense(2,activation="softmax"))
+
+opt = tf.keras.optimizers.Adam(lr=0.001, decay = 1e-6)
+
+model.compile(loss='sparse_categorical_crossentropy',
+              optimizer=opt,
+              metrics=['accuracy'])
+
+tensorboard = TensorBoard(log_dir=f'logs\{NAME}')
+
+filepath = "RNN_Final-{epoch:02d}-{val_acc:.3f}"
+checkpoint = ModelCheckpoint(r"C:\Users\wietz\Desktop\IoT\models\{}.model".format(filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='max')) # saves only the best ones
+
+history = model.fit(train_x,train_y,
+                    batch_size=BATCH_SIZE,
+                    epochs=EPOCHS,
+                    validation_data=(valid_x, valid_y)
+                    ,callbacks=[tensorboard, checkpoint])
+
+

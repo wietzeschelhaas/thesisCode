@@ -85,12 +85,14 @@ def preprocessDf(df):
 
 
 #create new column, might need old one later? 
-data['future'] = data[f"RTT"].shift(-FUTURE_PERIOD_PREDICT)
+data['future'] = data[f"RTT"].shift(-FUTURE_PERIOD_PREDICT+1)
 
 #to make it faster
 #data = data[:int(len(data)*0.05):]
 
 x, y = preprocessDf(data)
+#drop last value, hack solution, try to fix this later
+y.drop(y.tail(1).index,inplace=True) 
 
 msk = np.random.rand(len(x)) < 0.8
 x_train = x[msk]
@@ -104,8 +106,24 @@ y_test = y[~msk]
 
 
 model = Sequential()
-model.add(LSTM(50, input_shape=(x_train.shape[1], x_train.shape[2])))
+model.add(LSTM(128,input_shape=(x_train.shape[1:]),activation="tanh",return_sequences=True))
+model.add(Dropout(0.2))
+model.add(BatchNormalization())
+
+model.add(LSTM(128,input_shape=(x_train.shape[1:]),activation="tanh",return_sequences=True))
+model.add(Dropout(0.1))
+model.add(BatchNormalization())
+
+model.add(LSTM(128,activation="relu",input_shape=(x_train.shape[1:])))
+model.add(Dropout(0.2))
+model.add(BatchNormalization())
+
+model.add(Dense(32,activation="relu"))
+model.add(Dropout(0.2))
+
+
 model.add(Dense(1))
+
 model.compile(loss='mae', optimizer='adam')
 
 

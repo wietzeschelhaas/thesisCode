@@ -85,7 +85,7 @@ def preprocessDf(df):
 
 
 #create new column, might need old one later? 
-data['future'] = data[f"RTT"].shift(-FUTURE_PERIOD_PREDICT+1)
+data['future'] = data["RTT"].shift(-FUTURE_PERIOD_PREDICT+1)
 
 #to make it faster
 #data = data[:int(len(data)*0.05):]
@@ -128,7 +128,7 @@ model.add(Dense(1))
 model.compile(loss='mae', optimizer='adam')
 
 
-history = model.fit(x_train, y_train, epochs=100, batch_size=40, validation_data=(x_test, y_test), verbose=1, shuffle=False)
+history = model.fit(x_train, y_train, epochs=1, batch_size=40, validation_data=(x_test, y_test), verbose=1, shuffle=False)
 
 
 

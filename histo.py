@@ -160,4 +160,7 @@ for i in range(20):
                       "nmaeTest":NMAE(y_test,testPredic),
                       "nmaeTrain" :NMAE(y_train,trainPredic)}, ignore_index=True)
     print(i)
-    
+    pyplot.plot(res["n"],res['nmaeTest'], label='NMAE test')
+    pyplot.plot(res["n"],res['nmaeTrain'], label='NMASE train')
+    pyplot.legend()
+    pyplot.show()

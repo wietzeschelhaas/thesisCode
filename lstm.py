@@ -44,7 +44,7 @@ def preprocessDf(df):
     df["day"] = tmp
     
     #columns that are not necessary should be dropped.
-    df = df.drop(columns=['srcIP', 'Loss','Timestamp', 'DateTime','logDate','logTS',"date","time","RTT"])
+    df = df.drop(columns=['srcIP', 'Loss','Timestamp', 'DateTime','logDate','logTS',"date","time","RTT",])
     
     y = df.pop("future")
     y.dropna(inplace=True)
@@ -52,9 +52,7 @@ def preprocessDf(df):
 
     #normalize data
     for col in df.columns:
-        #normalzie everything except target?
-        if col != "target":
-            df[col] = preprocessing.scale(df[col].values)
+        df[col] = preprocessing.scale(df[col].values)
             
     # in case scale generates na
     #df.dropna(inplace=True)
@@ -107,19 +105,19 @@ y_test = y[~msk]
 
 #WHEN STACKING LSTM LAYERS WE MUST SET RETURN SEUQNCE = TRUE BECAUSE THE NEXT LSTM LAYER EXPECTS A SEQUENCE.
 model = Sequential()
-model.add(LSTM(64,input_shape=(x_train.shape[1:]),activation="tanh",return_sequences=True))
+model.add(LSTM(128,input_shape=(x_train.shape[1:]),activation="tanh"))
 model.add(Dropout(0.2))
 model.add(BatchNormalization())
 
-model.add(LSTM(64,input_shape=(x_train.shape[1:]),activation="tanh",return_sequences=True))
-model.add(Dropout(0.1))
-model.add(BatchNormalization())
+#model.add(LSTM(64,input_shape=(x_train.shape[1:]),activation="tanh",return_sequences=True))
+#model.add(Dropout(0.1))
+#model.add(BatchNormalization())
 
-model.add(LSTM(64,activation="relu",input_shape=(x_train.shape[1:])))
-model.add(Dropout(0.2))
-model.add(BatchNormalization())
+#model.add(LSTM(128,activation="relu",input_shape=(x_train.shape[1:])))
+#model.add(Dropout(0.2))
+#model.add(BatchNormalization())
 
-model.add(Dense(16,activation="relu"))
+model.add(Dense(32,activation="relu"))
 model.add(Dropout(0.2))
 
 
@@ -128,7 +126,7 @@ model.add(Dense(1))
 model.compile(loss='mae', optimizer='adam')
 
 
-history = model.fit(x_train, y_train, epochs=1, batch_size=40, validation_data=(x_test, y_test), verbose=1, shuffle=False)
+history = model.fit(x_train, y_train, epochs=100, batch_size=40, validation_data=(x_test, y_test), verbose=1, shuffle=False)
 
 
 

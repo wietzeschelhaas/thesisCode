@@ -53,7 +53,7 @@ pred_method = 'RF regr'
 
 
 # these hyper params are just a guess
-regr = RandomForestRegressor(n_estimators=1000, max_depth=20, random_state=42,verbose=1)
+regr = RandomForestRegressor(n_estimators=100, max_depth=10, random_state=42,verbose=1)
 
 regr.fit(X_train, y_train)
 
@@ -66,3 +66,5 @@ y_num_pred_RFregr_test = regr.predict(X_test)
 def NMAE(y,yHat):
     return np.sum(np.absolute(y - yHat)) / np.sum(y)
     
+print(NMAE(y_train,y_num_pred_RFregr_train))
+print(NMAE(y_test,y_num_pred_RFregr_test))
